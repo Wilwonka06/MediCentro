@@ -1,0 +1,205 @@
+
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+<h1 class="text-center mt-5"> Especialidades</h1>
+<button type="button" class="btn btn-success btn-s" data-bs-toggle="modal" data-bs-target="#modalCreate" >
+    Registrar Especialidad
+</button>
+
+
+<div class="table-responsive my-2">
+    <table class="table">
+        <thead class="table-dark text-justify">
+            <tr >
+                <th scope="col">Id </th>
+                <th scope="col">Nombre </th>
+                <th scope="col">Descripción </th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+            </tr>
+            <tbody class="">
+                {% for c in specialty %}
+                <tr class='' >
+                    <td>{{c.id}}</td>
+                    <td>{{c.name}}</td>
+                    <td>{{c.description}}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if c.status %}
+                                <span id="statusText{{ c.id }}" class="badge bg-success me-3">Disponible</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="statusSwitch{{ c.id }}" checked onclick="changeStatus({{ c.id }})">
+                                </div>
+                            {% else %}
+                                <span id="statusText{{ c.id }}" class="badge bg-danger me-3">Inactivo</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="statusSwitch{{ c.id }}" onclick="changeStatus({{ c.id }})">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                        
+                    <td>
+                        <!-- Modal trigger button -->
+                        <a type="button" class="btn " data-bs-toggle="modal" data-bs-target="#modalId" onclick="loadspecialty({{c.id}})">
+                            <i class="bi bi-eye text-primary"></i>
+                        </a>
+                        <a type="button" class="btn " data-bs-toggle="modal" data-bs-target="#modalEdit" onclick="editspecialty({{c.id}})">
+                            <i class="bi bi-pen text-warning"></i>
+                        </a>
+                        <a href='{% url "specialty_delete" c.id %}' type="button" class="btn ">
+                            <i class="bi bi-trash text-danger"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </thead>
+    </table>
+</div>
+
+
+<!-- Modal de registro de especialidades -->
+<div class="modal fade" id="modalCreate" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">
+                    Especialidad
+                </h5>
+                <button type="button" class="btn-close"  data-bs-dismiss="modal" aria-label="Close" >
+
+                </button>
+            </div>
+            <form class='p-2' action="{% url 'specialty_create' %}" method="post">
+                {% csrf_token %}
+                {{form.as_p}}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal mostrar -->
+<div
+    class="modal fade" id="modalId" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true" >
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">
+                    Especialidad
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close" ></button>
+            </div>
+            <div class="modal-view p-2">view</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional: Place to the bottom of scripts -->
+<script>
+    const loadspecialty =(specialtyId)=>{
+        fetch(`/medical/specialty_detail/${specialtyId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('.modal-view').innerHTML=`
+            <p><strong>Id: </strong>${data.id}</p>
+            <p><strong>Nombre: </strong>${data.name}</p>
+            <p><strong>Nombre: </strong>${data.description}</p>
+            <p><strong>Estado: </strong>${data.status ? 'Disponible' : 'Inactivo'}</p>
+
+            `
+        })
+    }
+</script>
+
+
+<!-- Modal Edit -->
+<div class="modal fade" id="modalEdit" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false": role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"  role="document" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">
+                    Modal especcialidad
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ></button>
+            </div>
+            <div class="modal-body" id='bodyModalEdit'>
+                <form id="editspecialtyForm" action="" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p}}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >
+                            Cerrar
+                        </button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+           
+        </div>
+    </div>
+</div>
+
+<!-- Optional: Place to the bottom of scripts -->
+<script>
+    const editspecialty =(specialtyId)=>{
+        const form = document.getElementById('editspecialtyForm')
+        form.action = `{% url 'specialty_edit' 0 %}`.replace('0', specialtyId)
+        fetch(`/medical/specialty_edit/${specialtyId}`)
+        .then(response => response.json())
+        .then(data => {
+            form.querySelector('[name = "name"]').value = data.name
+            form.querySelector('[name = "description"]').value = data.description
+        })
+    }
+
+</script>
+
+
+<script>
+    const changeStatus = (specialtyId) => {
+        fetch(`/medical/changeStatus/${specialtyId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const statusElement = document.getElementById(`statusText${specialtyId}`);
+                const switchElement = document.getElementById(`statusSwitch${specialtyId}`);
+                
+                // Actualizar el estado visualmente en la página
+                if (switchElement.checked) {
+                    statusElement.textContent = 'Disponible';
+                    statusElement.className = 'badge bg-success me-3';
+                } else {
+                    statusElement.textContent = 'Inactivo';
+                    statusElement.className = 'badge bg-danger me-3';
+                }
+            } else {
+                alert('No se pudo cambiar el estado.');
+            }
+        });
+    };
+    
+</script>
+
+
+{% endblock content %}

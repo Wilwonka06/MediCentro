@@ -1,0 +1,16 @@
+/* Cambiar el color del switch a negro cuando está activado */
+.form-check-input:checked {
+    background-color: black;
+    border-color: black;
+}
+
+/* Cambiar el color del switch a negro cuando no está activado */
+.form-check-input {
+    background-color: rgb(125, 118, 118);
+    border-color: rgb(125, 118, 118);
+}
+
+/* Cambiar el color del toggle (el círculo) */
+.form-check-input:checked::before {
+    background-color: white;
+}
